@@ -5,25 +5,12 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
-vim.api.nvim_set_keymap("n", "<leader>tf", "<Plug>PlenaryTestFile", { noremap = false, silent = false })
-
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 vim.keymap.set("n", "=ap", "ma=ap'a")
-vim.keymap.set("n", "<leader>zig", "<cmd>LspRestart<cr>")
-
-vim.keymap.set("n", "<leader>vwm", function()
-    require("vim-with-me").StartVimWithMe()
-end)
-vim.keymap.set("n", "<leader>svwm", function()
-    require("vim-with-me").StopVimWithMe()
-end)
-vim.keymap.set("n", "<leader>lt", function()
-    vim.cmd [[ PlenaryBustedFile % ]]
-end)
 
 -- greatest remap ever
 vim.keymap.set("x", "<leader>p", [["_dP]])
@@ -38,10 +25,6 @@ vim.keymap.set({ "n", "v" }, "<leader>d", "\"_d")
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
-vim.keymap.set("n", "<M-h>", "<cmd>silent !tmux-sessionizer -s 0 --vsplit<CR>")
-vim.keymap.set("n", "<M-H>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>")
-
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
@@ -74,11 +57,58 @@ vim.keymap.set(
     "oif err != nil {<CR>}<Esc>O.logger.Error(\"error\", \"error\", err)<Esc>F.;i"
 )
 
-vim.keymap.set("n", "<leader>ca", function()
-    require("cellular-automaton").start_animation("make_it_rain")
-end)
-
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")
 end)
 
+-- Competitive Programming --
+
+vim.api.nvim_create_user_command("Cpt", function()
+    vim.cmd("0r ~/.config/nvim/templates/cp.cpp")
+end, {})
+
+vim.keymap.set("n", "<F2>", ":Cpt<CR>", { silent = true })
+
+-- F5  = Compile
+-- F6  = Run
+-- F9  = Compile + Run
+-- F10 = Run with in.txt
+
+-- F5 = Compile only
+vim.keymap.set("n", "<F5>", function()
+    vim.cmd("w")
+    local exec = vim.fn.expand("%:r")
+    local cmd = "g++-15 -std=c++20 -DLOCAL -O2 -Wall % -o " .. exec .. " && echo '=== Compilation successful ===' && echo 'Press any key to continue...'"
+    vim.cmd("belowright 15split | terminal " .. cmd)
+    vim.cmd("startinsert")
+end, { silent = true })
+
+-- F6 = Run (interactive - best for pasting input)
+vim.keymap.set("n", "<F6>", function()
+    vim.cmd("w")
+    local exec = vim.fn.expand("%:r")
+    local cmd = "./" .. exec .. " ; echo '' ; echo '=== Program finished ===' ; echo 'Press any key to close terminal...'"
+    vim.cmd("belowright 15split | terminal " .. cmd)
+    vim.cmd("startinsert")
+end, { silent = true })
+
+-- F9 = Compile + Run (interactive)
+vim.keymap.set("n", "<F9>", function()
+    vim.cmd("w")
+    local exec = vim.fn.expand("%:r")
+    local cmd = "g++-15 -std=c++20 -DLOCAL -O2 -Wall % -o " 
+    .. exec 
+    .. " && ./" .. exec 
+    .. " ; echo '' ; echo '=== Program finished ===' ; echo 'Press any key to close terminal...'"
+    vim.cmd("belowright 15split | terminal " .. cmd)
+    vim.cmd("startinsert")
+end, { silent = true })
+
+-- F10 = Run with in.txt (non-interactive, uses prepared input)
+vim.keymap.set("n", "<F10>", function()
+    vim.cmd("w")
+    local exec = vim.fn.expand("%:r")
+    local cmd = "./" .. exec .. " < in.txt ; echo '' ; echo '=== Program finished ===' ; echo 'Press any key to close terminal...'"
+    vim.cmd("belowright 15split | terminal " .. cmd)
+    vim.cmd("startinsert")
+end, { silent = true })
